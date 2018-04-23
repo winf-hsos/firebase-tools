@@ -27,20 +27,38 @@ var firebasetools = (function() {
     /* Rates a product and sets a cookie to disallow duplicate ratings */
     var rateProductAnonymously = function(productId, rating) {
 
+        var fp;
+
         if (app) {
 
             getFingerprint().then((fingerprint) => {
+                fp = fingerprint;
 
+                hasVotedAlready(productId, fingerprint).then((hasVoted) => {
+
+                    if (!hasVoted) {
+                        rate();
+                    }
+                    else {
+                        console.error("This computer has already voted for the product with id >" + productId + "<");
+                        return;
+                    }
+                });
             });
+        }
+        else
+            console.error("Firebase not initialized.");
 
+
+        function rate() {
             productExists(productId).then((product) => {
 
                 if (product === false) {
-                    console.error("Product with id >" + productId + "< does not exist.");
+                    console.error("Error rating a product: product with id >" + productId + "< does not exist.");
                     return;
                 }
 
-                // Get the current product rarting
+                // Get the current product rating
                 getProductRating(productId).then((productRating) => {
 
                     var updatedRating = {};
@@ -57,17 +75,26 @@ var firebasetools = (function() {
                         updatedRating.votes = 1;
                     }
 
-                    firebase.database().ref(productRatingsPath + "/" + productId).set(updatedRating);
+                    var votees = updatedRating.votees;
 
-                    //console.dir(productRating);
+                    if (typeof votees == "undefined") {
+                        votees = {};
+                        votees[fp] = true
+                    }
+                    else {
+                        votees[fp] = true;
+                    }
+
+                    updatedRating.votees = votees;
+
+                    firebase.database().ref(productRatingsPath + "/" + productId).set(updatedRating);
 
                 });
 
                 console.info("Successfully rated product with id >" + productId + "<.");
             });
         }
-        else
-            console.error("Firebase not initialized.");
+
     }
 
     var productExists = function(productId) {
@@ -94,10 +121,6 @@ var firebasetools = (function() {
             var productRating = pr.val();
             return productRating;
         });
-    }
-
-    var onLoginChanged = function(callback) {
-        firebase.auth().onAuthStateChanged(callback);
     }
 
     /* This function assumes the username field has
@@ -156,6 +179,115 @@ var firebasetools = (function() {
 
     }
 
+    var loggedUser = function() {
+        var user = firebase.auth().currentUser;
+
+        if (user) {
+            return user;
+        }
+        else {
+            return "nobody";
+        }
+    }
+
+    var onLoginChanged = function(callback) {
+        firebase.auth().onAuthStateChanged(callback);
+    }
+
+    /* This function assumes the username field has
+     * the id #email and the password field #password */
+    var register = function(email = null, password = null, errorCallback = null) {
+
+        if (errorCallback == null)
+            errorCallback = handleError;
+
+        if (email == null) {
+            var emailField = document.getElementById("email");
+
+            if (emailField !== null)
+                email = emailField.value;
+            else {
+                console.error("Error when registering user: No field #email found and email was not provided as an argument!")
+                return false;
+            }
+        }
+
+        if (password == null) {
+            var passwordField = document.getElementById("password")
+            if (passwordField !== null)
+                password = passwordField.value;
+            else {
+                console.error("Error when registering user: No field #password found and password was not provided as an argument!")
+                return false;
+            }
+        }
+
+        firebase.auth().createUserWithEmailAndPassword(email, password).catch(errorCallback);
+
+        return true;
+
+        // Default error handler
+        function handleError(err) {
+            console.error("User registration error: " + err.message);
+        }
+    }
+
+    var updateDisplayName = function(displayName, callback) {
+
+        var user = firebase.auth().currentUser;
+        if (user) {
+            user.updateProfile({
+                displayName: displayName,
+            }).then(function() {
+                callback();
+            }).catch(function(error) {
+                console.error("Updating display name for user failed: " + error);
+            });
+
+        }
+        else {
+            console.error("Updating display name for user failed: No user logged in");
+        }
+    }
+
+    var updatePhotoUrl = function(photoUrl, callback) {
+        var user = firebase.auth().currentUser;
+        if (user) {
+            user.updateProfile({
+                photoURL: photoUrl,
+            }).then(function() {
+                callback();
+            }).catch(function(error) {
+                console.error("Updating photo url for user failed: " + error);
+            });
+
+        }
+        else {
+            console.error("Updating photo url for user failed: No user logged in");
+        }
+    }
+
+
+    function hasVotedAlready(productId, fingerprint) {
+
+        // Check if product exists
+        var productRef = firebase.database().ref(productRatingsPath + "/" + productId + "/votees");
+        return productRef.once('value').then((v) => {
+
+            var votees = v.val();
+            if (votees === null) {
+                return false;
+            }
+            else {
+
+                var keys = Object.keys(votees);
+                return keys.some((v) => {
+                    return v == fingerprint;
+                })
+            }
+        });
+    }
+
     function setCookie(cookieName, cookieValue, expiresInDays) {
         var d = new Date();
         d.setTime(d.getTime() + (expiresInDays * 24 * 60 * 60 * 1000));
@@ -182,7 +314,7 @@ var firebasetools = (function() {
     function getFingerprint() {
         return new Promise((resolve, reject) => {
             new Fingerprint2().get(function(result, components) {
-                return result;
+                resolve(result);
             });
         });
     }
@@ -190,9 +322,19 @@ var firebasetools = (function() {
     /* The functions exposed by this module */
     return {
         initialize: initialize,
+
+        // User
         login: login,
         logout: logout,
+        loggedUser: loggedUser,
         onLoginChanged: onLoginChanged,
+        register: register,
+
+        // User Profile
+        updateDisplayName: updateDisplayName,
+        updatePhotoUrl: updatePhotoUrl,
+
+        // Products
         setProductsPath: setProductsPath,
         productExists: productExists,
         getProductRating: getProductRating,
