@@ -222,7 +222,9 @@ var firebasetools = (function() {
             }
         }
 
-        firebase.auth().createUserWithEmailAndPassword(email, password).catch(errorCallback);
+        firebase.auth().createUserWithEmailAndPassword(email, password).then((user) => {
+            console.log("User with email >" + user.email + "< successfully registered!");
+        }).catch(errorCallback);
 
         return true;
 
