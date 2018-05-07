@@ -57,20 +57,23 @@
             <div class="col-sm-3"></div>
         </div>
     </div>
-    
-    <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase-firestore.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/1.5.1/fingerprint2.min.js"></script>
 
-    <!-- Load firebase-tools library -->
+    <!-- Load local firebase-tools library -->
     <script src="src/firebase-tools.js"></script>
-    
+
     <!--<script src="https://cdn.jsdelivr.net/gh/winf-hsos/firebase-tools@0.1/src/firebase-tools.js"></script>-->
-    
+
 
     <script>
         /* global firebasetools */
 
         var config = {
+            projectId: "web-engineering-project",
             apiKey: "AIzaSyBMjgUu-f8i_HB5R6ZzNoUVcUpK57K0UHY",
             databaseURL: "https://web-engineering-project.firebaseio.com",
             authDomain: "web-engineering-project.firebaseapp.com",
@@ -87,15 +90,16 @@
         function loginChanged(user) {
             if (user) {
                 console.log("Login successful! Welcome " + user.email);
+
+                firebasetools.setUserProfile({ lastName: "Meseth", hobbies: ["soccer", "basketball"] });
             }
             else {
                 console.log("No user logged in.");
             }
-
         }
 
         //firebasetools.rateProductWithUser(1, 1);
-        firebasetools.rateProductAnonymously(2, 1);
+        //firebasetools.rateProductAnonymously(2, 1);
     </script>
 
 </body>

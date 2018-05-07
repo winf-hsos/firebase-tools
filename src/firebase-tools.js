@@ -234,6 +234,61 @@ var firebasetools = (function() {
         }
     }
 
+    /* This function creates or updates the user profile 
+     * for the logged in user */
+    var setUserProfile = function(profile) {
+
+        // Required code for current version
+        const settings = { timestampsInSnapshots: true };
+        firebase.firestore().settings(settings);
+
+        var user = loggedUser();
+
+        profileExists(user.uid).then((exists) => {
+
+            if (!exists) {
+                firebase.firestore().collection("users").doc(user.uid).set(profile)
+                    .then(function() {
+                        console.log("User profile successfully created!");
+                    })
+                    .catch(handleError);
+            }
+            else {
+                // TODO: Update profile
+                firebase.firestore().collection("users").doc(user.uid).update(profile)
+                    .then(function() {
+                        console.log("User profile successfully updated!");
+                    })
+                    .catch(handleError);
+            }
+        })
+
+
+        function handleError(error) {
+            console.error("Error setting user profile: " + error);
+        }
+    }
+
+    var profileExists = function(userId) {
+        var userRef = firebase.firestore().collection('users').doc(userId);
+
+        return userRef.get()
+            .then(doc => {
+                if (!doc.exists) {
+                    console.log('Profile does not exist.');
+                    return false;
+                }
+                else {
+                    console.log('Profile found: ', doc.data());
+                    return true;
+                }
+            })
+            .catch(err => {
+                console.log('Error checking existence of user profile:' + err);
+                return false;
+            });
+    }
+
     var updateDisplayName = function(displayName, callback) {
 
         var user = firebase.auth().currentUser;
@@ -268,7 +323,6 @@ var firebasetools = (function() {
             console.error("Updating photo url for user failed: No user logged in");
         }
     }
-
 
     function hasVotedAlready(productId, fingerprint) {
 
@@ -335,6 +389,7 @@ var firebasetools = (function() {
         // User Profile
         updateDisplayName: updateDisplayName,
         updatePhotoUrl: updatePhotoUrl,
+        setUserProfile: setUserProfile,
 
         // Products
         setProductsPath: setProductsPath,
