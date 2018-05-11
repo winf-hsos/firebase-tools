@@ -234,6 +234,43 @@ var firebasetools = (function() {
         }
     }
 
+    var getUserProfile = function(callback) {
+
+        // Required code for current version
+        const settings = { timestampsInSnapshots: true };
+        firebase.firestore().settings(settings);
+
+        var user = loggedUser();
+
+        /* Only proceed if user is signed in */
+        if (user) {
+            var userRef = firebase.firestore().collection('users').doc(user.uid);
+
+            return userRef.get()
+                .then(doc => {
+                    if (!doc.exists) {
+                        console.error('Error reading user profile: Profile for ' + +user.email +
+                            '(UID: ' + user.uid + ') does not exist.');
+                        callback(null);
+                        return null;
+                    }
+                    else {
+                        callback(doc.data());
+                        return doc.data();
+                    }
+                })
+                .catch(handleError);
+        }
+        else {
+            console.error("Error reading user profile: No user is signed in.");
+        }
+
+        function handleError(error) {
+            console.error("Error reading user profile: " + error);
+        }
+    }
+
+
     /* This function creates or updates the user profile 
      * for the logged in user */
     var setUserProfile = function(profile) {
@@ -245,7 +282,7 @@ var firebasetools = (function() {
         var user = loggedUser();
 
         /* Only proceed if user is signed in */
-        if (user) {
+        if (user !== "nobody") {
 
             profileExists(user.uid).then((exists) => {
 
@@ -397,6 +434,7 @@ var firebasetools = (function() {
         updateDisplayName: updateDisplayName,
         updatePhotoUrl: updatePhotoUrl,
         setUserProfile: setUserProfile,
+        getUserProfile: getUserProfile,
 
         // Products
         setProductsPath: setProductsPath,
