@@ -244,25 +244,32 @@ var firebasetools = (function() {
 
         var user = loggedUser();
 
-        profileExists(user.uid).then((exists) => {
+        /* Only proceed if user is signed in */
+        if (user) {
 
-            if (!exists) {
-                firebase.firestore().collection("users").doc(user.uid).set(profile)
-                    .then(function() {
-                        console.log("User profile successfully created!");
-                    })
-                    .catch(handleError);
-            }
-            else {
-                // TODO: Update profile
-                firebase.firestore().collection("users").doc(user.uid).update(profile)
-                    .then(function() {
-                        console.log("User profile successfully updated!");
-                    })
-                    .catch(handleError);
-            }
-        })
+            profileExists(user.uid).then((exists) => {
 
+                if (!exists) {
+                    firebase.firestore().collection("users").doc(user.uid).set(profile)
+                        .then(function() {
+                            console.log("User profile successfully created!");
+                        })
+                        .catch(handleError);
+                }
+                else {
+                    // TODO: Update profile
+                    firebase.firestore().collection("users").doc(user.uid).update(profile)
+                        .then(function() {
+                            console.log("User profile successfully updated!");
+                        })
+                        .catch(handleError);
+                }
+            })
+
+        }
+        else {
+            console.error("Error setting up user profile: No user is signed in.");
+        }
 
         function handleError(error) {
             console.error("Error setting user profile: " + error);
