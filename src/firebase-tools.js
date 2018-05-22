@@ -15,6 +15,8 @@ var firebasetools = (function() {
     var initialize = function(config) {
         if (config.apiKey) {
             app = firebase.initializeApp(config);
+
+            _makeSureFirestoreWorks();
             console.info("Firebase app init complete");
         }
     }
@@ -236,13 +238,13 @@ var firebasetools = (function() {
 
     /* This function retrieves all items from the collection with 
      * the given name. */
-    var getContentItems = function(collectionName, callback) {
+    var getContentItems = function(collectionName, callback = null) {
 
         if (typeof collectionName == "undefined" || collectionName == null || collectionName.length == 0) {
             console.error("Error retrieving content items, no collection name given: " + collectionName);
         }
 
-        _makeSureFirestoreWorks();
+        //_makeSureFirestoreWorks();
 
         var itemsRef = firebase.firestore().collection(collectionName);
 
@@ -253,8 +255,11 @@ var firebasetools = (function() {
                 if (items.size == 0) {
                     console.error('Error retrieving content items. Collection >' + collectionName +
                         '< does not exist in database.');
-                    callback(null);
-                    return null;
+
+                    if (callback !== null)
+                        callback(null);
+                        
+                    return [];
                 }
                 else {
 
@@ -264,7 +269,9 @@ var firebasetools = (function() {
                         itemsArray.push(newItem);
                     });
 
-                    callback(itemsArray);
+                    if (callback !== null)
+                        callback(itemsArray);
+                        
                     return itemsArray;
                 }
             })
@@ -285,7 +292,7 @@ var firebasetools = (function() {
             return null;
         }
 
-        _makeSureFirestoreWorks();
+        //_makeSureFirestoreWorks();
 
         var itemsRef = firebase.firestore().collection(collectionName);
         return itemsRef.add(item).then((newItemRef) => {
@@ -319,13 +326,11 @@ var firebasetools = (function() {
             return null;
         }
 
-        _makeSureFirestoreWorks();
+        //_makeSureFirestoreWorks();
 
         return _contentItemExists(collectionName, itemId).then((exists) => {
 
             if (exists) {
-                console.log(itemId);
-
                 var itemRef = firebase.firestore().collection(collectionName).doc(itemId);
                 return itemRef.update(item).then(callback).catch((error) => { handleError(error, "updateContentItem") });
 
@@ -353,7 +358,7 @@ var firebasetools = (function() {
             return null;
         }
 
-        _makeSureFirestoreWorks();
+        //_makeSureFirestoreWorks();
 
         return _contentItemExists(collectionName, itemId).then((exists) => {
 
@@ -569,20 +574,19 @@ var firebasetools = (function() {
     /* This function checks if a content item exists */
     function _contentItemExists(collectionName, itemId, callback = null) {
 
-
         var itemRef = firebase.firestore().collection(collectionName).doc(itemId);
 
         return itemRef.get()
             .then(doc => {
                 if (!doc.exists) {
-                    console.log('Item does not exist.');
+                    //console.log('Item does not exist.');
                     if (callback !== null) {
                         callback(false);
                     }
                     return false;
                 }
                 else {
-                    console.log('Item found: ', doc.data());
+                    //console.log('Item found: ', doc.data());
                     if (callback !== null) {
                         callback(true);
                     }
