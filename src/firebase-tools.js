@@ -12,7 +12,6 @@ var firebasetools = (function() {
     var userProductRatingsPath = 'userratings';
     var anonymousProductRatingsPath = 'anonymousratings';
 
-
     var initialize = function(config) {
         if (config.apiKey) {
             app = firebase.initializeApp(config);
@@ -234,42 +233,141 @@ var firebasetools = (function() {
         }
     }
 
-    var getUserProfile = function(callback) {
 
-        // Required code for current version
-        const settings = { timestampsInSnapshots: true };
-        firebase.firestore().settings(settings);
+    /* This function retrieves all items from the collection with 
+     * the given name. */
+    var getContentItems = function(collectionName, callback) {
 
-        var user = loggedUser();
-
-        /* Only proceed if user is signed in */
-        if (user) {
-            var userRef = firebase.firestore().collection('users').doc(user.uid);
-
-            return userRef.get()
-                .then(doc => {
-                    if (!doc.exists) {
-                        console.error('Error reading user profile: Profile for ' + +user.email +
-                            '(UID: ' + user.uid + ') does not exist.');
-                        callback(null);
-                        return null;
-                    }
-                    else {
-                        callback(doc.data());
-                        return doc.data();
-                    }
-                })
-                .catch(handleError);
-        }
-        else {
-            console.error("Error reading user profile: No user is signed in.");
+        if (typeof collectionName == "undefined" || collectionName == null || collectionName.length == 0) {
+            console.error("Error retrieving content items, no collection name given: " + collectionName);
         }
 
-        function handleError(error) {
-            console.error("Error reading user profile: " + error);
-        }
+        _makeSureFirestoreWorks();
+
+        var itemsRef = firebase.firestore().collection(collectionName);
+
+        var itemsArray = [];
+
+        return itemsRef.get()
+            .then(items => {
+                if (items.size == 0) {
+                    console.error('Error retrieving content items. Collection >' + collectionName +
+                        '< does not exist in database.');
+                    callback(null);
+                    return null;
+                }
+                else {
+
+                    items.forEach((item) => {
+                        var newItem = item.data();
+                        newItem.id = item.id;
+                        itemsArray.push(newItem);
+                    });
+
+                    callback(itemsArray);
+                    return itemsArray;
+                }
+            })
+            .catch((error) => { handleError(error, "getContentItems") });
     }
 
+    /* This function add an item to the collection with the
+     * given name */
+    var addContentItem = function(collectionName, item, callback) {
+
+        if (!_checkString(collectionName)) {
+            console.error("Error adding content item, no collection name given: " + collectionName);
+            return null;
+        }
+
+        if (!_checkObject(item)) {
+            console.error("Error adding content item, no item to add was given: " + item);
+            return null;
+        }
+
+        _makeSureFirestoreWorks();
+
+        var itemsRef = firebase.firestore().collection(collectionName);
+        return itemsRef.add(item).then((newItemRef) => {
+
+            item.id = newItemRef.id;
+
+            return newItemRef.update({
+                    id: newItemRef.id
+                })
+                .then(function() {
+                    callback(item);
+                })
+        }).catch((error) => { handleError(error, "addContentItem") });
+    }
+
+    /* This function updated an item in the collection */
+    var updateContentItem = function(collectionName, itemId, item, callback) {
+
+        if (!_checkString(collectionName)) {
+            console.error("Error updating content item, no collection name given: " + collectionName);
+            return null;
+        }
+
+        if (!_checkString(itemId)) {
+            console.error("Error updating content item, no item ID given: " + itemId);
+            return null;
+        }
+
+        if (!_checkObject(item)) {
+            console.error("Error updating content item, no item to add was given: " + item);
+            return null;
+        }
+
+        _makeSureFirestoreWorks();
+
+        return _contentItemExists(collectionName, itemId).then((exists) => {
+
+            if (exists) {
+                console.log(itemId);
+
+                var itemRef = firebase.firestore().collection(collectionName).doc(itemId);
+                return itemRef.update(item).then(callback).catch((error) => { handleError(error, "updateContentItem") });
+
+            }
+            else {
+                console.error("Error updating content item, no item with ID found: " + itemId);
+                return null;
+            }
+
+        })
+
+    }
+
+    /* This function removes an item from the collection with
+     * the given id. */
+    var removeContentItem = function(collectionName, itemId, callback) {
+
+        if (!_checkString(collectionName)) {
+            console.error("Error removing content item, no collection name given: " + collectionName);
+            return null;
+        }
+
+        if (!_checkString(itemId)) {
+            console.error("Error removing content item, no item id given: " + itemId);
+            return null;
+        }
+
+        _makeSureFirestoreWorks();
+
+        return _contentItemExists(collectionName, itemId).then((exists) => {
+
+            if (exists == true) {
+
+                var itemRef = firebase.firestore().collection(collectionName).doc(itemId);
+                return itemRef.delete().then(callback).catch((error) => { handleError(error, "removeContentItem") });
+            }
+            else {
+                console.error("Error removing content item, no item with ID found: " + itemId);
+                return null;
+            }
+        }).catch((error) => { handleError(error, "removeContentItem") });
+    }
 
     /* This function creates or updates the user profile 
      * for the logged in user */
@@ -313,6 +411,45 @@ var firebasetools = (function() {
         }
     }
 
+    /* This function retrieves the user profile from the firestore
+     * Requires a logged in user, output an error to console otherwise */
+    var getUserProfile = function(callback) {
+
+        // Required code for current version
+        const settings = { timestampsInSnapshots: true };
+        firebase.firestore().settings(settings);
+
+        var user = loggedUser();
+
+        /* Only proceed if user is signed in */
+        if (user) {
+            var userRef = firebase.firestore().collection('users').doc(user.uid);
+
+            return userRef.get()
+                .then(doc => {
+                    if (!doc.exists) {
+                        console.error('Error reading user profile: Profile for ' + +user.email +
+                            '(UID: ' + user.uid + ') does not exist.');
+                        callback(null);
+                        return null;
+                    }
+                    else {
+                        callback(doc.data());
+                        return doc.data();
+                    }
+                })
+                .catch(handleError);
+        }
+        else {
+            console.error("Error reading user profile: No user is signed in.");
+        }
+
+        function handleError(error) {
+            console.error("Error reading user profile: " + error);
+        }
+    }
+
+    /* This function checks if a profile for a userId exists */
     var profileExists = function(userId) {
         var userRef = firebase.firestore().collection('users').doc(userId);
 
@@ -368,6 +505,10 @@ var firebasetools = (function() {
         }
     }
 
+    function handleError(error, source) {
+        console.error("Unexpected errror in function " + source + ": " + error.message);
+    }
+
     function hasVotedAlready(productId, fingerprint) {
 
         // Check if product exists
@@ -419,6 +560,71 @@ var firebasetools = (function() {
         });
     }
 
+    function _makeSureFirestoreWorks() {
+        // Required code for current version
+        const settings = { timestampsInSnapshots: true };
+        firebase.firestore().settings(settings);
+    }
+
+    /* This function checks if a content item exists */
+    function _contentItemExists(collectionName, itemId, callback = null) {
+
+
+        var itemRef = firebase.firestore().collection(collectionName).doc(itemId);
+
+        return itemRef.get()
+            .then(doc => {
+                if (!doc.exists) {
+                    console.log('Item does not exist.');
+                    if (callback !== null) {
+                        callback(false);
+                    }
+                    return false;
+                }
+                else {
+                    console.log('Item found: ', doc.data());
+                    if (callback !== null) {
+                        callback(true);
+                    }
+                    return true;
+                }
+            })
+            .catch(err => {
+                console.log('Error checking existence of item:' + err);
+                if (callback !== null) {
+                    callback(false);
+                }
+                return false;
+            });
+    }
+
+    function _checkObject(toCheck) {
+        if (typeof toCheck == "object") {
+            return true;
+        }
+        else return false;
+    }
+
+    function _checkInteger(toCheck) {
+        if (isNaN(toCheck.parseInt())) {
+            return false;
+        }
+        else return true;
+    }
+
+    function _checkDouble(toCheck) {
+        if (isNaN(toCheck.parseFloat())) {
+            return false;
+        }
+        else return true;
+    }
+
+    function _checkString(toCheck) {
+        if (typeof toCheck !== "undefined" && toCheck !== null && toCheck.length !== 0)
+            return true;
+        else return false;
+    }
+
     /* The functions exposed by this module */
     return {
         initialize: initialize,
@@ -435,6 +641,12 @@ var firebasetools = (function() {
         updatePhotoUrl: updatePhotoUrl,
         setUserProfile: setUserProfile,
         getUserProfile: getUserProfile,
+
+        // Dynamic Content
+        getContentItems: getContentItems,
+        addContentItem: addContentItem,
+        updateContentItem: updateContentItem,
+        removeContentItem: removeContentItem,
 
         // Products
         setProductsPath: setProductsPath,

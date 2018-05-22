@@ -76,7 +76,7 @@
     <!-- Load local firebase-tools library -->
     <script src="src/firebase-tools.js"></script>
 
-    <!--<script src="https://cdn.jsdelivr.net/gh/winf-hsos/firebase-tools@0.4/src/firebase-tools.js"></script>-->
+    <!--<script src="https://cdn.jsdelivr.net/gh/winf-hsos/firebase-tools@0.5/src/firebase-tools.js"></script>-->
 
     <script>
         /* global firebasetools */
@@ -88,8 +88,36 @@
             authDomain: "web-engineering-project.firebaseapp.com",
         };
 
+
+        var item;
+
         firebasetools.initialize(config);
         firebasetools.onLoginChanged(loginChanged);
+
+        firebasetools.addContentItem("offerings", { name: "New Product", price: 1.99 }, itemSaved);
+
+        function offeringsRead(offerings) {
+            console.dir(offerings);
+            firebasetools.updateContentItem("offerings", item.id, { sizes: ['M', 'L', 'XL'] });
+        }
+
+        function itemSaved(newItem) {
+            console.log("Item saved!");
+            item = newItem;
+            //firebasetools.getContentItems("offerings", offeringsRead);
+            firebasetools.updateContentItem("offerings", newItem.id, { color: "red" }, itemUpdated);
+            item = newItem;
+        }
+
+        function itemUpdated() {
+            console.log("Item updated!");
+            //firebasetools.removeContentItem("offerings", item.id, itemDeleted);
+            firebasetools.getContentItems("offerings", offeringsRead);
+        }
+
+        function itemDeleted() {
+            console.log("Item deleted");
+        }
 
         function login() {
             console.log("Signing in...");
@@ -115,7 +143,7 @@
             }
 
             function showProfile(profile) {
-                console.dir(profile);
+                //console.dir(profile);
             }
         }
 
