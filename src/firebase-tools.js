@@ -235,7 +235,6 @@ var firebasetools = (function() {
         }
     }
 
-
     /* This function retrieves all items from the collection with 
      * the given name. */
     var getContentItems = function(collectionName, callback = null) {
@@ -258,7 +257,7 @@ var firebasetools = (function() {
 
                     if (callback !== null)
                         callback(null);
-                        
+
                     return [];
                 }
                 else {
@@ -271,7 +270,7 @@ var firebasetools = (function() {
 
                     if (callback !== null)
                         callback(itemsArray);
-                        
+
                     return itemsArray;
                 }
             })
@@ -420,9 +419,7 @@ var firebasetools = (function() {
      * Requires a logged in user, output an error to console otherwise */
     var getUserProfile = function(callback) {
 
-        // Required code for current version
-        const settings = { timestampsInSnapshots: true };
-        firebase.firestore().settings(settings);
+        _makeSureFirestoreWorks();
 
         var user = loggedUser();
 
@@ -499,14 +496,59 @@ var firebasetools = (function() {
             user.updateProfile({
                 photoURL: photoUrl,
             }).then(function() {
-                callback();
+                if (callback !== null)
+                    callback();
             }).catch(function(error) {
-                console.error("Updating photo url for user failed: " + error);
+                console.error("Error updating photo url for user: " + error);
             });
 
         }
         else {
-            console.error("Updating photo url for user failed: No user logged in");
+            console.error("Error updating photo url for user: No user logged in");
+        }
+    }
+
+    var uploadUserImage = function(file, callback) {
+
+        if (typeof file == "undefined") {
+            console.error("Error uploading user image: No file selected!");
+            return;
+        }
+
+        if (!file.type.startsWith("image")) {
+            console.error("Error uploading user image: Only image files allowed!")
+            return;
+        }
+
+        if (file.type.endsWith("svg+xml")) {
+            console.error("Error uploading user image: SVG is not allowed!")
+            return;
+        }
+
+        var user = loggedUser();
+
+        if (user) {
+
+            var name = "userphotos/" + user.uid + "/" + file.name;
+            var metadata = { contentType: file.type };
+            var storageRef = firebase.storage().ref();
+
+            storageRef.child(name).put(file, metadata).then((snapshot) => {
+
+
+
+                snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                    console.log('Upload successful, see file at: ' + downloadURL);
+                    updatePhotoUrl(downloadURL, null);
+                    callback(snapshot, downloadURL);
+                });
+
+
+            });
+
+        }
+        else {
+            console.error("Error uploading user image: No user logged in!");
         }
     }
 
@@ -645,13 +687,14 @@ var firebasetools = (function() {
         updatePhotoUrl: updatePhotoUrl,
         setUserProfile: setUserProfile,
         getUserProfile: getUserProfile,
+        uploadUserImage: uploadUserImage,
 
         // Dynamic Content
         getContentItems: getContentItems,
         addContentItem: addContentItem,
         updateContentItem: updateContentItem,
         removeContentItem: removeContentItem,
-
+        
         // Products
         setProductsPath: setProductsPath,
         productExists: productExists,
