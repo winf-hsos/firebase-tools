@@ -81,74 +81,20 @@
     <script>
         /* global firebasetools */
 
-        var config = {
-            projectId: "web-engineering-project",
-            apiKey: "AIzaSyBMjgUu-f8i_HB5R6ZzNoUVcUpK57K0UHY",
-            databaseURL: "https://web-engineering-project.firebaseio.com",
-            authDomain: "web-engineering-project.firebaseapp.com",
-        };
+        var testArray = [];
+        var testObj1 = { name: "Meier", age: 45, subscriber: true };
+        var testObj2 = { name: "Zamapano", age: 61, subscriber: true };
+        var testObj3 = { name: "Ahaus", age: 32, subscriber: false };
+        testArray.push(testObj1);
+        testArray.push(testObj2);
+        testArray.push(testObj3);
 
+        firebasetools.sortArrayBy(testArray, "firstname", false);
+        console.dir(testArray);
 
-        var item;
-
-        firebasetools.initialize(config);
-        firebasetools.onLoginChanged(loginChanged);
-
-        firebasetools.addContentItem("offerings", { name: "New Product", price: 1.99 }, itemSaved);
-
-        function offeringsRead(offerings) {
-            console.dir(offerings);
-            firebasetools.updateContentItem("offerings", item.id, { sizes: ['M', 'L', 'XL'] });
-        }
-
-        function itemSaved(newItem) {
-            console.log("Item saved!");
-            item = newItem;
-            //firebasetools.getContentItems("offerings", offeringsRead);
-            firebasetools.updateContentItem("offerings", newItem.id, { color: "red" }, itemUpdated);
-            item = newItem;
-        }
-
-        function itemUpdated() {
-            console.log("Item updated!");
-            //firebasetools.removeContentItem("offerings", item.id, itemDeleted);
-            firebasetools.getContentItems("offerings", offeringsRead);
-        }
-
-        function itemDeleted() {
-            console.log("Item deleted");
-        }
-
-        function login() {
-            console.log("Signing in...");
-            firebasetools.login();
-        }
-
-        function loginChanged(user) {
-            if (user) {
-                console.log("Login successful! Welcome " + user.email);
-
-                var userProfile = {
-                    lastName: "Meseth",
-                    hobbies: ["soccer", "basketball"]
-                }
-
-                firebasetools.setUserProfile(userProfile);
-
-                var profile = firebasetools.getUserProfile(showProfile);
-
-            }
-            else {
-                console.log("No user logged in.");
-            }
-
-            function showProfile(profile) {
-                //console.dir(profile);
-            }
-        }
-
-        //firebasetools.rateProductWithUser(1, 1);
-        //firebasetools.rateProductAnonymously(2, 1);
+        var filteredArray = firebasetools.filterArrayBy(testArray, "subscriber", true);
+        console.log(filteredArray);
+        
     </script>
 
 </body>

@@ -552,6 +552,28 @@ var firebasetools = (function() {
         }
     }
 
+    var sortArrayBy = function(arrayToSort, propertyName, asc = true) {
+
+        return arrayToSort.sort(compare);
+
+        function compare(a, b) {
+            if (a[propertyName] < b[propertyName]) {
+                return asc == true ? -1 : 1;
+            }
+            if (a[propertyName] > b[propertyName]) {
+                return asc == true ? 1 : -1;
+            }
+            return 0;
+        }
+    }
+    
+    var filterArrayBy = function(arrayToFilter, propertyName, propertyValue) {
+        
+        return arrayToFilter.filter((item) => {
+            return item[propertyName] == propertyValue;
+        })
+    }
+
     function handleError(error, source) {
         console.error("Unexpected errror in function " + source + ": " + error.message);
     }
@@ -694,12 +716,16 @@ var firebasetools = (function() {
         addContentItem: addContentItem,
         updateContentItem: updateContentItem,
         removeContentItem: removeContentItem,
-        
+
         // Products
         setProductsPath: setProductsPath,
         productExists: productExists,
         getProductRating: getProductRating,
-        rateProductAnonymously: rateProductAnonymously
+        rateProductAnonymously: rateProductAnonymously,
+
+        // Helper
+        sortArrayBy: sortArrayBy,
+        filterArrayBy: filterArrayBy
     }
 
 })();
