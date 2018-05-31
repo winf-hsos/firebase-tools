@@ -13,54 +13,6 @@
 
 <body>
 
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-sm-3"></div>
-            <div class="col align-self-center">
-                <h3 class="text-center">Login</h3>
-                <hr>
-                <div class="form-group">
-                    <label for="inputEmail">Email address</label>
-                    <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email">
-                    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-                </div>
-                <div class="form-group">
-                    <label for="inputPassword">Password</label>
-                    <input type="password" class="form-control" id="password" placeholder="Password">
-                </div>
-
-                <!-- When this is clicked, login() is called -->
-                <button id="btnLogin" onclick="login()" class="btn btn-primary">Login</button>
-
-                <!-- When this is clicked, login() is called -->
-                <button id="btnLogout" onclick="firebasetools.logout()" class="btn btn-primary">Logout</button>
-
-
-                <hr>
-            </div>
-            <div class="col-sm-3"></div>
-        </div>
-
-
-        <div class="row align-items-center">
-            <div class="col-sm-3"></div>
-            <div class="col align-self-center">
-                <div class="card">
-                    <div class="card-body">
-
-                        <!-- These two will be filled dynamically -->
-                        <h5 class="card-title" id="welcomeTitle"></h5>
-                        <p class="card-text" id="welcomeText"></p>
-
-                    </div>
-                </div>
-
-                <!-- When this is clicked, logout() is called -->
-                <button id="btnLogout" onclick="logout()" style="margin-top: 16px;" class="btn btn-primary" hidden>Logout</button>
-            </div>
-            <div class="col-sm-3"></div>
-        </div>
-    </div>
 
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -89,12 +41,13 @@
         testArray.push(testObj2);
         testArray.push(testObj3);
 
-        firebasetools.sortArrayBy(testArray, "firstname", false);
+        firebasetools.sortArrayBy(testArray, "age", false);
+
         console.dir(testArray);
 
-        var filteredArray = firebasetools.filterArrayBy(testArray, "subscriber", true);
+        var filteredArray = firebasetools
+            .filterArrayBy(testArray, "subscriber", true);
         console.log(filteredArray);
-        
     </script>
 
 </body>
