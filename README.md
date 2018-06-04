@@ -14,20 +14,20 @@ You can link the current version of the firebasetool library like this:
 
 The function `firebasetools.login()` tries to sign in a user. If you don't specify the parameters `email` and `password`, the function assumes that there exists the following two input fields from which to fetch the corresponding values:
 
-```
+```html
 <input type="text" id="email"></input>
 <input type="password" id="password"></input>
 ```
 
 Alternatively, you can pass the two parameters:
 
-```
+```js
 firebasetools.login(email, password);
 ```
 
 As a third argument, you can pass a callback function that is called when something goes wrong:
 
-```
+```js
 firebasetools.login(email, password, handleError);
 
 function handleError(error) {
