@@ -34,3 +34,27 @@ function handleError(error) {
     console.error(error);
 }
 ```
+
+## File Upload
+
+### User Profile Image Upload
+
+The function `firebasetools.uploadUserImage(image, callbackFinished)` lets us upload a user profile image. The following assumptions are made by the function to simplify:
+
+- User images are stored in the folder `userphotos`
+- Each user has a folder with the UID of the user as a subfolder of `userphotos`
+- The function automatically sets the property `photoURL` of the Firebase Auth Profile after each successful image upload
+- A user must be logged in to upload a profile image (you get an error on the console if not)
+
+Let's assume you have a file input field in your HTML with the ID `#userImage`. Then, the following code does the upload for you:
+
+```js
+var image = document.getElementById("userImage").files[0];
+firebasetools.uploadUserImage(image, uploadFinished);
+
+function uploadFinished(snapshot, downloadUrl) {
+    console.log("Image was uploaded to: " + downloadUrl);
+}
+```
+
+### Generic File Upload
