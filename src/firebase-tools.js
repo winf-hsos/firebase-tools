@@ -552,6 +552,35 @@ var firebasetools = (function() {
         }
     }
 
+    var uploadFile = function(path, file, callback) {
+
+        if (typeof file == "undefined") {
+            console.error("Error uploading file: No file selected!");
+            return;
+        }
+
+        var user = loggedUser();
+
+        if (user) {
+
+            var name = path + "/" + file.name;
+            var metadata = { contentType: file.type };
+            var storageRef = firebase.storage().ref();
+
+            storageRef.child(name).put(file, metadata).then((snapshot) => {
+
+                snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                    console.log('Upload successful, see file at: ' + downloadURL);
+                    callback(snapshot, downloadURL);
+                });
+            });
+
+        }
+        else {
+            console.error("Error uploading file: No user logged in!");
+        }
+    }
+
     var sortArrayBy = function(arrayToSort, propertyName, asc = true) {
 
         return arrayToSort.sort(compare);
@@ -566,9 +595,9 @@ var firebasetools = (function() {
             return 0;
         }
     }
-    
+
     var filterArrayBy = function(arrayToFilter, propertyName, propertyValue) {
-        
+
         return arrayToFilter.filter((item) => {
             return item[propertyName] == propertyValue;
         })
@@ -710,6 +739,7 @@ var firebasetools = (function() {
         setUserProfile: setUserProfile,
         getUserProfile: getUserProfile,
         uploadUserImage: uploadUserImage,
+        uploadFile: uploadFile,
 
         // Dynamic Content
         getContentItems: getContentItems,
