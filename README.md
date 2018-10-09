@@ -7,8 +7,38 @@ A toolset to simplify common processes in Web Engineering when using Firebase as
 
 You can link the current version of the firebasetool library like this:
 
-`<script src="https://cdn.jsdelivr.net/gh/winf-hsos/firebase-tools@0.70/src/firebase-tools.js"></script>`
+`<script src="https://cdn.jsdelivr.net/gh/winf-hsos/firebase-tools@0.80/src/firebase-tools.js"></script>`
 
+## Function Overview
+
+- **User Authentication**
+    - `login(email, password, callback)`
+    - `logout(callback)`
+    - `loggedUser()` - Returns the currently signed in user object
+    - `onLoginChanged(callback)` - Called when the authentication status changes
+    - `register(email, password, errorCallback)`
+    - `setUserProfile(profile)` - Sets the profile in Firestore for the currently signed in user
+    - `getUserProfile()` - Gets the user profile from Firestore for the currently signed in user
+    - `profileExists()` - Returns true if the currently signed in user has already a profile in Firestore
+    - `updateDisplayName(displayName, callback)` - Updates the display name field in the Firebase user profile
+    - `updatePhotoUrl(photoUrl, callback)`
+     photo url
+
+- **Firestore**
+    - `getContentItems(collectionName, callback)`
+    - `addContentItem(collectionName, item, callback)`
+    - `updateContentItem(collectionName, itemId, item, callback)`
+    - `removeContentItem(collectionName, itemId, callback)`
+    
+- **Storage**
+    - `uploadFile(path, file, callback)`
+    - `uploadUserImage(file, callback)` - Upload an image file to Firebase storage and sets the user's
+
+- **Helper**
+    - `sortArrayBy(arrayToSort, propertyName, asc = true)`
+    - `filterArrayBy(arrayToFilter, propertyName, propertyValue)`
+    - `getURLParameterByName(name, url)`
+ 
 
 ## Login & Logout
 
