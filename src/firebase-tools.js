@@ -603,6 +603,22 @@ var firebasetools = (function() {
         })
     }
 
+    var getURLParameterByName = function(name, url) {
+        
+        // Take the current URL if none was given
+        if (!url) url = window.location.href;
+
+        name = name.replace(/[\[\]]/g, "\\$&");
+
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+
+        if (!results) return null;
+        if (!results[2]) return '';
+
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
     function handleError(error, source) {
         console.error("Unexpected errror in function " + source + ": " + error.message);
     }
@@ -755,7 +771,10 @@ var firebasetools = (function() {
 
         // Helper
         sortArrayBy: sortArrayBy,
-        filterArrayBy: filterArrayBy
+        filterArrayBy: filterArrayBy,
+        
+        // URL
+        getURLParameterByName: getURLParameterByName
     }
 
 })();

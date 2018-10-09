@@ -42,7 +42,7 @@ function handleError(error) {
 The function `firebasetools.uploadUserImage(image, callbackFinished)` lets us upload a user profile image. The following assumptions are made by the function to simplify:
 
 - User images are stored in the folder `userphotos`
-- Each user has a folder with the UID of the user as a subfolder of `userphotos`
+- Each user has a folder with the UID of the user as a subfolder of `userphotos`. E.g. `userphotos/DMpMS4IY5wauWoV4gOq6vC8lp4t2/`
 - The function automatically sets the property `photoURL` of the Firebase Auth Profile after each successful image upload
 - A user must be logged in to upload a profile image (you get an error on the console if not)
 
