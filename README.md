@@ -22,7 +22,6 @@ You can link the current version of the firebasetool library like this:
     - `profileExists()` - Returns true if the currently signed in user has already a profile in Firestore
     - `updateDisplayName(displayName, callback)` - Updates the display name field in the Firebase user profile
     - `updatePhotoUrl(photoUrl, callback)`
-     photo url
 
 - **Firestore**
     - `getContentItems(collectionName, callback)`
