@@ -25,6 +25,7 @@ You can link the current version of the firebasetool library like this:
 
 - **Firestore**
     - `getContentItems(collectionName, callback)`
+    - `getContentItemsRealTime(collectionName, callback)`
     - `addContentItem(collectionName, item, callback)`
     - `updateContentItem(collectionName, itemId, item, callback)`
     - `removeContentItem(collectionName, itemId, callback)`

@@ -243,8 +243,6 @@ var firebasetools = (function() {
             console.error("Error retrieving content items, no collection name given: " + collectionName);
         }
 
-        //_makeSureFirestoreWorks();
-
         var itemsRef = firebase.firestore().collection(collectionName);
 
         var itemsArray = [];
@@ -275,6 +273,43 @@ var firebasetools = (function() {
                 }
             })
             .catch((error) => { handleError(error, "getContentItems") });
+    }
+
+    /* This function listens to real-time updates on all items from the collection with 
+     * the given name. Anytime the data changes, the callback is invoked. */
+    var getContentItemsRealTime = function(collectionName, callback = null) {
+
+        if (typeof collectionName == "undefined" || collectionName == null || collectionName.length == 0) {
+            console.error("Error listening to content items, no collection name given: " + collectionName);
+        }
+
+        var itemsRef = firebase.firestore().collection(collectionName);
+
+        itemsRef.onSnapshot(function(items) {
+            var itemsArray = [];
+
+            if (items.size == 0) {
+                console.error('Error listenting to content items. Collection >' + collectionName +
+                    '< does not exist in database.');
+
+                if (callback !== null)
+                    callback(null);
+
+                return [];
+            }
+            else {
+
+                items.forEach((item) => {
+                    var newItem = item.data();
+                    newItem.id = item.id;
+                    itemsArray.push(newItem);
+                });
+
+                if (callback !== null)
+                    callback(itemsArray);
+            }
+
+        }, (error) => { handleError(error, "getContentItems") });
     }
 
     /* This function add an item to the collection with the
@@ -604,7 +639,7 @@ var firebasetools = (function() {
     }
 
     var getURLParameterByName = function(name, url) {
-        
+
         // Take the current URL if none was given
         if (!url) url = window.location.href;
 
@@ -759,6 +794,7 @@ var firebasetools = (function() {
 
         // Dynamic Content
         getContentItems: getContentItems,
+        getContentItemsRealTime: getContentItemsRealTime,
         addContentItem: addContentItem,
         updateContentItem: updateContentItem,
         removeContentItem: removeContentItem,
@@ -772,7 +808,7 @@ var firebasetools = (function() {
         // Helper
         sortArrayBy: sortArrayBy,
         filterArrayBy: filterArrayBy,
-        
+
         // URL
         getURLParameterByName: getURLParameterByName
     }

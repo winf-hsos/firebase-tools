@@ -28,26 +28,25 @@
     <!-- Load local firebase-tools library -->
     <script src="src/firebase-tools.js"></script>
 
-    <!--<script src="https://cdn.jsdelivr.net/gh/winf-hsos/firebase-tools@0.5/src/firebase-tools.js"></script>-->
+    <!--<script src="https://cdn.jsdelivr.net/gh/winf-hsos/firebase-tools@0.8/src/firebase-tools.js"></script>-->
 
     <script>
         /* global firebasetools */
+        var config = {
+            apiKey: "AIzaSyBMjgUu-f8i_HB5R6ZzNoUVcUpK57K0UHY",
+            authDomain: "web-engineering-project.firebaseapp.com",
+            databaseURL: "https://web-engineering-project.firebaseio.com",
+            projectId: "web-engineering-project",
+            storageBucket: "web-engineering-project.appspot.com",
+        };
 
-        var testArray = [];
-        var testObj1 = { name: "Meier", age: 45, subscriber: true };
-        var testObj2 = { name: "Zamapano", age: 61, subscriber: true };
-        var testObj3 = { name: "Ahaus", age: 32, subscriber: false };
-        testArray.push(testObj1);
-        testArray.push(testObj2);
-        testArray.push(testObj3);
-
-        firebasetools.sortArrayBy(testArray, "age", false);
-
-        console.dir(testArray);
-
-        var filteredArray = firebasetools
-            .filterArrayBy(testArray, "subscriber", true);
-        console.log(filteredArray);
+        firebasetools.initialize(config);
+        
+        firebasetools.getContentItemsRealTime("todos", todosChanged);
+        
+        function todosChanged(todos) {
+            console.dir(todos);
+        }
     </script>
 
 </body>
