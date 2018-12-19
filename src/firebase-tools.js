@@ -342,7 +342,7 @@ var firebasetools = (function() {
         }).catch((error) => { handleError(error, "addContentItem") });
     }
 
-    /* This function updated an item in the collection */
+    /* This function updates an item in the collection */
     var updateContentItem = function(collectionName, itemId, item, callback) {
 
         if (!_checkString(collectionName)) {
@@ -465,10 +465,10 @@ var firebasetools = (function() {
             return userRef.get()
                 .then(doc => {
                     if (!doc.exists) {
-                        console.error('Error reading user profile: Profile for ' + +user.email +
-                            '(UID: ' + user.uid + ') does not exist.');
-                        callback(null);
-                        return null;
+                        console.warn('Warning: Profile for ' + user.email +
+                            ' (UID: ' + user.uid + ') does not exist.');
+                        callback({});
+                        return {};
                     }
                     else {
                         callback(doc.data());
