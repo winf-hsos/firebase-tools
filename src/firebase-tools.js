@@ -16,7 +16,7 @@ var firebasetools = (function() {
         if (config.apiKey) {
             app = firebase.initializeApp(config);
 
-            _makeSureFirestoreWorks();
+            //_makeSureFirestoreWorks();
             console.info("Firebase app init complete");
         }
     }
