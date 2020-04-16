@@ -126,10 +126,14 @@ var firebasetools = (function () {
 
     /* This function assumes the username field has
      * the id #email and the password field #password */
-    var login = function (email = null, password = null, errorCallback = null) {
+    var login = function (email = null, password = null, errorCallback = null, successCallback = null) {
 
         if (errorCallback == null)
             errorCallback = handleError;
+
+        if (successCallback == null) {
+            successCallback = handleSuccess;
+        }
 
         if (email == null) {
             var emailField = document.getElementById("email");
@@ -152,11 +156,15 @@ var firebasetools = (function () {
             }
         }
 
-        firebase.auth().signInWithEmailAndPassword(email, password).catch(errorCallback);
+        firebase.auth().signInWithEmailAndPassword(email, password)
+            .then(successCallback)
+            .catch(errorCallback);
 
-        return true;
 
-        // Default error handler
+        function handleSuccess(user) {
+            console.log("User >" +  user.user.email + "< successfully signed in.");
+        }
+
         function handleError(err) {
             console.error("Login error: " + err.message);
         }
@@ -230,14 +238,12 @@ var firebasetools = (function () {
 
 
         function handleSuccess(user) {
-            console.dir(user);
-            console.log("User with email >" + user.email + "< successfully registered!");
+            console.log("User with email >" + user.user.email + "< successfully registered!");
         }
 
         // Default error handler
         function handleError(err) {
             console.error("User registration error: " + err.message);
-            return false;
         }
     }
 
