@@ -197,10 +197,13 @@ var firebasetools = (function () {
 
     /* This function assumes the username field has
      * the id #email and the password field #password */
-    var register = function (email = null, password = null, errorCallback = null) {
+    var register = function (email = null, password = null, errorCallback = null, successCallback = null) {
 
         if (errorCallback == null)
             errorCallback = handleError;
+
+        if (successCallback == null)
+            successCallback = handleSuccess;
 
         if (email == null) {
             var emailField = document.getElementById("email");
@@ -223,12 +226,13 @@ var firebasetools = (function () {
             }
         }
 
-        firebase.auth().createUserWithEmailAndPassword(email, password).then((user) => {
+        firebase.auth().createUserWithEmailAndPassword(email, password).then(successCallback).catch(errorCallback);
+
+
+        function handleSuccess(user) {
+            console.dir(user);
             console.log("User with email >" + user.email + "< successfully registered!");
-            return true;
-        }).catch(errorCallback);
-
-
+        }
 
         // Default error handler
         function handleError(err) {
