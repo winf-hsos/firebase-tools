@@ -414,10 +414,6 @@ var firebasetools = (function () {
      * for the logged in user */
     var setUserProfile = function (profile) {
 
-        // Required code for current version
-        const settings = { timestampsInSnapshots: true };
-        firebase.firestore().settings(settings);
-
         var user = loggedUser();
 
         /* Only proceed if user is signed in */
@@ -456,7 +452,7 @@ var firebasetools = (function () {
      * Requires a logged in user, output an error to console otherwise */
     var getUserProfile = function (callback) {
 
-        _makeSureFirestoreWorks();
+        //_makeSureFirestoreWorks();
 
         var user = loggedUser();
 
