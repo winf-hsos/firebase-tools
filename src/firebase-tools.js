@@ -3,7 +3,7 @@
 
 /* global firebase, localStorage, Fingerprint2 */
 
-var firebasetools = (function() {
+var firebasetools = (function () {
 
     var app;
 
@@ -12,7 +12,7 @@ var firebasetools = (function() {
     var userProductRatingsPath = 'userratings';
     var anonymousProductRatingsPath = 'anonymousratings';
 
-    var initialize = function(config) {
+    var initialize = function (config) {
         if (config.apiKey) {
             app = firebase.initializeApp(config);
 
@@ -21,12 +21,12 @@ var firebasetools = (function() {
         }
     }
 
-    var setProductsPath = function(path) {
+    var setProductsPath = function (path) {
         productsPath = path;
     }
 
     /* Rates a product and sets a cookie to disallow duplicate ratings */
-    var rateProductAnonymously = function(productId, rating) {
+    var rateProductAnonymously = function (productId, rating) {
 
         var fp;
 
@@ -98,7 +98,7 @@ var firebasetools = (function() {
 
     }
 
-    var productExists = function(productId) {
+    var productExists = function (productId) {
 
         // Check if product exists
         var productRef = firebase.database().ref(productsPath + "/" + productId);
@@ -114,7 +114,7 @@ var firebasetools = (function() {
         });
     }
 
-    var getProductRating = function(productId) {
+    var getProductRating = function (productId) {
 
         var productRatingRef = firebase.database().ref(productRatingsPath + "/" + productId);
         return productRatingRef.once('value').then((pr) => {
@@ -126,7 +126,7 @@ var firebasetools = (function() {
 
     /* This function assumes the username field has
      * the id #email and the password field #password */
-    var login = function(email = null, password = null, errorCallback = null) {
+    var login = function (email = null, password = null, errorCallback = null) {
 
         if (errorCallback == null)
             errorCallback = handleError;
@@ -163,10 +163,10 @@ var firebasetools = (function() {
 
     }
 
-    var logout = function(callback = null) {
+    var logout = function (callback = null) {
 
         if (callback == null) {
-            callback = function() {
+            callback = function () {
                 console.log("User successfully signed out.");
             }
         }
@@ -180,7 +180,7 @@ var firebasetools = (function() {
 
     }
 
-    var loggedUser = function() {
+    var loggedUser = function () {
         var user = firebase.auth().currentUser;
 
         if (user) {
@@ -191,13 +191,13 @@ var firebasetools = (function() {
         }
     }
 
-    var onLoginChanged = function(callback) {
+    var onLoginChanged = function (callback) {
         firebase.auth().onAuthStateChanged(callback);
     }
 
     /* This function assumes the username field has
      * the id #email and the password field #password */
-    var register = function(email = null, password = null, errorCallback = null) {
+    var register = function (email = null, password = null, errorCallback = null) {
 
         if (errorCallback == null)
             errorCallback = handleError;
@@ -225,19 +225,21 @@ var firebasetools = (function() {
 
         firebase.auth().createUserWithEmailAndPassword(email, password).then((user) => {
             console.log("User with email >" + user.email + "< successfully registered!");
+            return true;
         }).catch(errorCallback);
 
-        return true;
+
 
         // Default error handler
         function handleError(err) {
             console.error("User registration error: " + err.message);
+            return false;
         }
     }
 
     /* This function retrieves all items from the collection with 
      * the given name. */
-    var getContentItems = function(collectionName, callback = null) {
+    var getContentItems = function (collectionName, callback = null) {
 
         if (typeof collectionName == "undefined" || collectionName == null || collectionName.length == 0) {
             console.error("Error retrieving content items, no collection name given: " + collectionName);
@@ -277,7 +279,7 @@ var firebasetools = (function() {
 
     /* This function listens to real-time updates on all items from the collection with 
      * the given name. Anytime the data changes, the callback is invoked. */
-    var getContentItemsRealTime = function(collectionName, callback = null) {
+    var getContentItemsRealTime = function (collectionName, callback = null) {
 
         if (typeof collectionName == "undefined" || collectionName == null || collectionName.length == 0) {
             console.error("Error listening to content items, no collection name given: " + collectionName);
@@ -285,7 +287,7 @@ var firebasetools = (function() {
 
         var itemsRef = firebase.firestore().collection(collectionName);
 
-        itemsRef.onSnapshot(function(items) {
+        itemsRef.onSnapshot(function (items) {
             var itemsArray = [];
 
             if (items.size == 0) {
@@ -314,7 +316,7 @@ var firebasetools = (function() {
 
     /* This function add an item to the collection with the
      * given name */
-    var addContentItem = function(collectionName, item, callback) {
+    var addContentItem = function (collectionName, item, callback) {
 
         if (!_checkString(collectionName)) {
             console.error("Error adding content item, no collection name given: " + collectionName);
@@ -334,16 +336,16 @@ var firebasetools = (function() {
             item.id = newItemRef.id;
 
             return newItemRef.update({
-                    id: newItemRef.id
-                })
-                .then(function() {
+                id: newItemRef.id
+            })
+                .then(function () {
                     callback(item);
                 })
         }).catch((error) => { handleError(error, "addContentItem") });
     }
 
     /* This function updates an item in the collection */
-    var updateContentItem = function(collectionName, itemId, item, callback) {
+    var updateContentItem = function (collectionName, itemId, item, callback) {
 
         if (!_checkString(collectionName)) {
             console.error("Error updating content item, no collection name given: " + collectionName);
@@ -380,7 +382,7 @@ var firebasetools = (function() {
 
     /* This function removes an item from the collection with
      * the given id. */
-    var removeContentItem = function(collectionName, itemId, callback) {
+    var removeContentItem = function (collectionName, itemId, callback) {
 
         if (!_checkString(collectionName)) {
             console.error("Error removing content item, no collection name given: " + collectionName);
@@ -410,7 +412,7 @@ var firebasetools = (function() {
 
     /* This function creates or updates the user profile 
      * for the logged in user */
-    var setUserProfile = function(profile) {
+    var setUserProfile = function (profile) {
 
         // Required code for current version
         const settings = { timestampsInSnapshots: true };
@@ -425,7 +427,7 @@ var firebasetools = (function() {
 
                 if (!exists) {
                     firebase.firestore().collection("users").doc(user.uid).set(profile)
-                        .then(function() {
+                        .then(function () {
                             console.log("User profile successfully created!");
                         })
                         .catch(handleError);
@@ -433,7 +435,7 @@ var firebasetools = (function() {
                 else {
                     // TODO: Update profile
                     firebase.firestore().collection("users").doc(user.uid).update(profile)
-                        .then(function() {
+                        .then(function () {
                             console.log("User profile successfully updated!");
                         })
                         .catch(handleError);
@@ -452,7 +454,7 @@ var firebasetools = (function() {
 
     /* This function retrieves the user profile from the firestore
      * Requires a logged in user, output an error to console otherwise */
-    var getUserProfile = function(callback) {
+    var getUserProfile = function (callback) {
 
         _makeSureFirestoreWorks();
 
@@ -487,7 +489,7 @@ var firebasetools = (function() {
     }
 
     /* This function checks if a profile for a userId exists */
-    var profileExists = function(userId) {
+    var profileExists = function (userId) {
         var userRef = firebase.firestore().collection('users').doc(userId);
 
         return userRef.get()
@@ -507,15 +509,15 @@ var firebasetools = (function() {
             });
     }
 
-    var updateDisplayName = function(displayName, callback) {
+    var updateDisplayName = function (displayName, callback) {
 
         var user = firebase.auth().currentUser;
         if (user) {
             user.updateProfile({
                 displayName: displayName,
-            }).then(function() {
+            }).then(function () {
                 callback();
-            }).catch(function(error) {
+            }).catch(function (error) {
                 console.error("Updating display name for user failed: " + error);
             });
 
@@ -525,15 +527,15 @@ var firebasetools = (function() {
         }
     }
 
-    var updatePhotoUrl = function(photoUrl, callback) {
+    var updatePhotoUrl = function (photoUrl, callback) {
         var user = firebase.auth().currentUser;
         if (user) {
             user.updateProfile({
                 photoURL: photoUrl,
-            }).then(function() {
+            }).then(function () {
                 if (callback !== null)
                     callback();
-            }).catch(function(error) {
+            }).catch(function (error) {
                 console.error("Error updating photo url for user: " + error);
             });
 
@@ -543,7 +545,7 @@ var firebasetools = (function() {
         }
     }
 
-    var uploadUserImage = function(file, callback) {
+    var uploadUserImage = function (file, callback) {
 
         if (typeof file == "undefined") {
             console.error("Error uploading user image: No file selected!");
@@ -572,7 +574,7 @@ var firebasetools = (function() {
 
 
 
-                snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                snapshot.ref.getDownloadURL().then(function (downloadURL) {
                     console.log('Upload successful, see file at: ' + downloadURL);
                     updatePhotoUrl(downloadURL, null);
                     callback(snapshot, downloadURL);
@@ -587,7 +589,7 @@ var firebasetools = (function() {
         }
     }
 
-    var uploadFile = function(path, file, callback) {
+    var uploadFile = function (path, file, callback) {
 
         if (typeof file == "undefined") {
             console.error("Error uploading file: No file selected!");
@@ -604,7 +606,7 @@ var firebasetools = (function() {
 
             storageRef.child(name).put(file, metadata).then((snapshot) => {
 
-                snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                snapshot.ref.getDownloadURL().then(function (downloadURL) {
                     console.log('Upload successful, see file at: ' + downloadURL);
                     callback(snapshot, downloadURL);
                 });
@@ -616,7 +618,7 @@ var firebasetools = (function() {
         }
     }
 
-    var sortArrayBy = function(arrayToSort, propertyName, asc = true) {
+    var sortArrayBy = function (arrayToSort, propertyName, asc = true) {
 
         return arrayToSort.sort(compare);
 
@@ -631,14 +633,14 @@ var firebasetools = (function() {
         }
     }
 
-    var filterArrayBy = function(arrayToFilter, propertyName, propertyValue) {
+    var filterArrayBy = function (arrayToFilter, propertyName, propertyValue) {
 
         return arrayToFilter.filter((item) => {
             return item[propertyName] == propertyValue;
         })
     }
 
-    var getURLParameterByName = function(name, url) {
+    var getURLParameterByName = function (name, url) {
 
         // Take the current URL if none was given
         if (!url) url = window.location.href;
@@ -703,7 +705,7 @@ var firebasetools = (function() {
 
     function getFingerprint() {
         return new Promise((resolve, reject) => {
-            new Fingerprint2().get(function(result, components) {
+            new Fingerprint2().get(function (result, components) {
                 resolve(result);
             });
         });
