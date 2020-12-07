@@ -7,7 +7,11 @@ A toolset to simplify common processes in Web Engineering when using Firebase as
 
 You can link the current version of the firebasetool library like this:
 
-`<script src="https://cdn.jsdelivr.net/gh/winf-hsos/firebase-tools@0.80/src/firebase-tools.js"></script>`
+`<script src="https://cdn.jsdelivr.net/gh/winf-hsos/firebase-tools/src/firebase-tools.js"></script>`
+
+Or, you can link to a specific version (not recommended):
+
+`<script src="https://cdn.jsdelivr.net/gh/winf-hsos/firebase-tools@0.91/src/firebase-tools.js"></script>`
 
 ## Function Overview
 

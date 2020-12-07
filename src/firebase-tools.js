@@ -2,6 +2,7 @@
  * when using Firebase as the web apps backend */
 
 /* global firebase, localStorage, Fingerprint2 */
+console.log("Firebasetools V0.92");
 
 var firebasetools = (function () {
 
@@ -716,13 +717,7 @@ var firebasetools = (function () {
             });
         });
     }
-
-    function _makeSureFirestoreWorks() {
-        // Required code for current version
-        const settings = { timestampsInSnapshots: true };
-        firebase.firestore().settings(settings);
-    }
-
+    
     /* This function checks if a content item exists */
     function _contentItemExists(collectionName, itemId, callback = null) {
 
